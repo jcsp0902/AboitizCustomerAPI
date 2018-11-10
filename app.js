@@ -11,8 +11,6 @@ var express       = require("express"),
     morgan        = require("morgan");
     seedDB        = require("./seeds");
 // requiring routes
-var commentRoutes    = require("./routes/comments");
-var  campgroundRoutes = require("./routes/campgrounds");
 var indexRoutes      = require("./routes/index");
 
 mongoose.Promise = global.Promise;
@@ -53,8 +51,6 @@ app.use(function(req, res, next){
 });
 
 app.use("/", indexRoutes);
-app.use("/campgrounds/:id/comments",commentRoutes);
-app.use("/campgrounds", campgroundRoutes);
 // process.env.PORT, process.env.IP
 app.listen(5000, function(){
   console.log("Server has started in port 5000");
