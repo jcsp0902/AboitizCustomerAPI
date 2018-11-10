@@ -5,9 +5,6 @@ var express = require("express"),
     middleware = require("../middleware"),
     User   = require("../models/user");
 // root route
-router.get("/", function(req, res){
-  res.render("landing");
-});
 
 
 
@@ -52,15 +49,23 @@ router.get("/login", function(req, res){
 });
 // router.post("/login", middleware, callback)
 // ORIGINAL
-router.post("/login",passport.authenticate("local",
-  {
-    successRedirect : "/campgrounds",
-    successFlash    : "Welcome To Kilein's Camp Site",
-    failureRedirect : "/login",
-    failureFlash    : "Invalid username or password"
-  }), function(req, res){
-    console.log('req: ', req)
-    console.log('res: ', res)
+router.get("/login", function(req, res, next) {
+  passport.authenticate("local", function(err, user, info) {
+    if(err) return next(err);
+    if(!user) {
+      return res.send({
+        status: "error",
+        message: "failed to authenticate",
+      })
+    }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.send({
+        status: "success",
+        message: "Successfully logged in",
+      });
+    });
+  })
 });
 // router.post("/login", function(req, res){
 //   passport.use(new LocalStrategy(
@@ -84,20 +89,22 @@ router.post("/login",passport.authenticate("local",
 // logout routes
 router.get("/logout", function(req,res){
   req.logout();
-  req.flash("success", "Logged you out!");
-  res.redirect("/campgrounds");
+  res.send({
+    status: "success",
+    message: "Successfully logged out"
+  })
 });
 
 // USERS PROFILES
-router.get("/users/:id", middleware.isLoggedIn, function(req, res){
-  User.findById(req.params.id, function(err, foundUser){
-    if(err){
-      req.flash("error", err.message);
-      res.redirect("/");
-    } else{
-      res.render("users/show", {user : foundUser});
-    }
-  });
-});
+// router.get("/users/:id", middleware.isLoggedIn, function(req, res){
+//   User.findById(req.params.id, function(err, foundUser){
+//     if(err){
+//       req.flash("error", err.message);
+//       res.redirect("/");
+//     } else{
+//       res.render("users/show", {user : foundUser});
+//     }
+//   });
+// });
 
 module.exports = router;
